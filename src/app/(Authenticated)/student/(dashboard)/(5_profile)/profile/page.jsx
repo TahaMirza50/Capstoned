@@ -26,7 +26,10 @@ async function Profile() {
       <div
         className={`${styles.contentCardTitleContainer} p-3 flex flex-row w-full rounded-xl`}
       >
-        <ProfileHeadingCard />
+        <ProfileHeadingCard 
+        industries={profile.student.industriesOfInterest}
+        resume={profile.student.resume}
+        />
       </div>
 
       <div className="flex flex-row items-center justify-center w-full space-x-10 h-5/6">

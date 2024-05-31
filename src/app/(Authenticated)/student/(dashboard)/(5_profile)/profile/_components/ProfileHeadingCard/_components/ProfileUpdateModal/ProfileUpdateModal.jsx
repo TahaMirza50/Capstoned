@@ -1,51 +1,73 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./ProfileUpdateModal.module.css";
-import { AiOutlinePlusCircle } from "react-icons/ai";
-import { FaTimes } from "react-icons/fa";
 import DropDown from "./_components/DropDown/DropDown";
 import TimeTable from "./_components/TimeTable/TimeTable";
+import { BACKEND_ROUTES } from "@/utils/routes/backend_routes";
+import { HttpStatusCode } from "axios";
+import { callAPI } from "@/utils/helpers/callAPI";
+import { useDispatch, useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
+import { removeAuthDetails } from "@/provider/redux/features/AuthDetails";
+import DropDownIndustries from "./_components/DropDownIndustries/DropDownIndustries";
+import { FaTimes } from "react-icons/fa";
+import { set } from "mongoose";
+import { FRONTEND_ROUTES } from "@/utils/routes/frontend_routes";
 
-function ProfileUpdateModal({ setOpenModal }) {
-  const [list, setList] = useState([
-    "Software Engineering",
-    "Security",
-    "Network Security",
-    "Cloud Security",
-    "Application Security",
-    "Machine Learning",
-    "Artificial Intelligence",
-    "Mobile App Development",
-    "Backend Engineering",
-  ]);
+function ProfileUpdateModal({
+  resume,
+  industries,
+  setOpenModal
+}) {
+  const authDetails = useSelector((state) => state.AuthDetails);
+  const dispatch = useDispatch();
+  const router = useRouter();
 
-  const [companyList, setCompanyList] = useState([
-    "Google",
-    "Facebook",
-    "Amazon",
-    "Microsoft",
-    "Apple",
-    "Netflix",
-    "Tesla",
-    "SpaceX",
-    "Twitter",
-  ]);
+  const [list, setList] = useState(industries);
+  const [resumeDoc, setResumeDoc] = useState(null);
 
-  const tailwindColorClasses = [
-    "bg-red-100",
-    "bg-blue-100",
-    "bg-green-100",
-    "bg-yellow-100",
-    "bg-indigo-100",
-    "bg-purple-100",
-    "bg-pink-100",
-    "bg-gray-100",
-  ];
+  const [loading,setLoading] = useState(false)
 
-  const generateRandomColor = () => {
-    const randomIndex = Math.floor(Math.random() * tailwindColorClasses.length);
-    return tailwindColorClasses[randomIndex];
+  const handleAdd = (value) => {
+    if (value === "All Categories") return;
+    if (!list.includes(value)) {
+      setList([...list, value]);
+    }
   };
 
+  const handleDelete = (indexToRemove) => {
+    const updatedList = list.filter((_, index) => index !== indexToRemove);
+    setList(updatedList);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const accessToken = authDetails.accessToken;
+    console.log(list, resumeDoc);
+
+    setLoading(true)
+    const response = await callAPI('PATCH', accessToken, BACKEND_ROUTES.updateProfileStudent, 
+    {
+      resume: resumeDoc,
+      industries: list,
+    }) 
+
+    if(response.status === HttpStatusCode.Ok){
+      setLoading(false)
+      setOpenModal(false)
+      router.refresh();
+    }
+    if(response.status === HttpStatusCode.Unauthorized){
+      const responseLogOut = await fetch(BACKEND_ROUTES.logout, {
+        method: "POST",
+      });
+      if (responseLogOut.status === HttpStatusCode.Ok) {
+        dispatch(removeAuthDetails());
+        router.replace(FRONTEND_ROUTES.landing_page);
+      }
+    }
+
+  };
   return (
     <div
       id="static-modal"
@@ -63,6 +85,7 @@ function ProfileUpdateModal({ setOpenModal }) {
               type="button"
               class="text-black bg-transparent hover:bg-red-500 hover:text-white rounded-lg text-sm w-6 h-6 ms-auto inline-flex justify-center items-center"
               data-modal-hide="static-modal"
+              disabled={loading}
               onClick={() => setOpenModal(false)}
             >
               <svg
@@ -89,36 +112,52 @@ function ProfileUpdateModal({ setOpenModal }) {
             <h1 className="font-semibold">Industries Details</h1>
             <hr className={`${styles.line} mb-6`} />
 
-            <div className="flex flex-row mb-3 items-center justify-start">
-              <label htmlFor="dropdown" className="text-sm mr-5">
+            <div className="flex flex-row items-center justify-start mb-3">
+              <label htmlFor="dropdown" className="text-sm mr-5 text-black">
                 Interests:
               </label>
-              <div>
-                <DropDown list={list} placeHolder={"All categories"} />
-              </div>
-              <button
-                disabled
-                className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full flex items-center"
-              >
-                <AiOutlinePlusCircle />
-              </button>
+              <DropDownIndustries
+                list={list}
+                handleAdd={handleAdd}
+                placeHolder={"All categories"}
+              />
             </div>
 
-            {list.map((item, index) => {
-              const randomColorClass = generateRandomColor();
-              return (
+            <div className="border-2 border-gray-300 rounded-lg p-2">
+              {list.map((item, index) => (
                 <button
                   key={index}
                   type="button"
-                  className={`${randomColorClass} inline-flex justify-center items-center text-sm rounded-xl p-2 mr-2 my-1 `}
+                  className="bg-blue-100 inline-flex justify-center items-center text-sm rounded-xl p-2 mr-2 my-1"
                 >
                   {item}
-                  <FaTimes className="ml-2 text-xs hover:text-red-500" />
+                  <FaTimes
+                    className="ml-2 text-xs hover:text-red-500"
+                    onClick={() => handleDelete(index)}
+                  />
                 </button>
-              );
-            })}
+              ))}
+            </div>
 
-            
+            <div className="pt-6">
+            <h1 className="font-semibold">Resume</h1>
+            <hr className={`${styles.line} mb-6`} />
+            </div>
+
+            <label htmlFor="document" className="text-sm block mb-3 text-black">
+              Proposal Document: (File should be PDF format only and less than
+              5MB)
+            </label>
+            <input
+              class="mb-8 block w-1/2 text-xs text-black border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none"
+              id="document"
+              type="file"
+              accept=".pdf"
+              onChange={(e) => {
+                setResumeDoc(e.target.files[0]);
+              }}
+            />
+
           </form>
 
           <div class="flex items-center justify-end p-4 md:p-5 border-gray-200 rounded-b dark:border-gray-600">
@@ -126,7 +165,8 @@ function ProfileUpdateModal({ setOpenModal }) {
               data-modal-hide="static-modal"
               type="button"
               className="p-1 text-sm rounded-lg tracking-widest text-white bg-black border-2 border-black hover:text-gray-300"
-              onClick={() => setOpenModal(false)}
+              onClick={handleSubmit}
+              disabled={loading}
             >
               Save
             </button>
@@ -135,6 +175,7 @@ function ProfileUpdateModal({ setOpenModal }) {
               type="button"
               className="p-1 ms-3 rounded-lg text-sm tracking-widest text-black bg-white border-2 border-black hover:bg-gray-300 "
               onClick={() => setOpenModal(false)}
+              disabled={loading}
             >
               Cancel
             </button>

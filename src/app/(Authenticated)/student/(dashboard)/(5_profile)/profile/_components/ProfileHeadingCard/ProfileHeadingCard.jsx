@@ -4,7 +4,7 @@ import { FaEdit } from "react-icons/fa";
 import styles from "./ProfileHeadingCard.module.css";
 import ProfileUpdateModal from "./_components/ProfileUpdateModal/ProfileUpdateModal";
 
-function ProfileHeadingCard() {
+function ProfileHeadingCard({industries, resume}) {
     const [openModal, setOpenModal] = useState(false);
 
     return (
@@ -24,7 +24,11 @@ function ProfileHeadingCard() {
 
       <FaEdit className="h-5 w-5 hover:text-red-500" onClick={()=>setOpenModal(true)}/>
 
-      {openModal && <ProfileUpdateModal setOpenModal={setOpenModal}/>}
+      {openModal && <ProfileUpdateModal
+          setOpenModal={setOpenModal}
+          industries={industries}
+          resume={resume}
+        />}
     </div>
   );
 }
