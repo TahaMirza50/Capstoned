@@ -3,6 +3,7 @@ const ai_baseURL = process.env.NEXT_PUBLIC_AI_BACKEND_URL
 
 export const BACKEND_AI_ROUTES = {
   uniqueIdeaDetection: `${ai_baseURL}/unique-idea-detection`,
+  automatedProjectAssessment: `${ai_baseURL}/automated-project-assessment`,
 }
 
 export const BACKEND_ROUTES = {

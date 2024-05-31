@@ -15,6 +15,7 @@ import { BACKEND_ROUTES } from "@/utils/routes/backend_routes";
 import { convertDate } from "@/utils/helpers/date";
 import SubmitButton from "../SubmitButton/SubmitButton";
 import { removeAuthDetails } from "@/provider/redux/features/AuthDetails";
+import AutoProjectButton from "../AutoProjectAssessment/UniqueScoreButton";
 
 function MilestoneTab({ role, marked, milestoneNumber, assignedMilestoneID, projectID }) {
   const [isMarked, setIsMarked] = useState(marked);
@@ -159,6 +160,14 @@ function MilestoneTab({ role, marked, milestoneNumber, assignedMilestoneID, proj
               </div>
             </>
           )}
+          <div className="flex flex-row col-span-4 items-center justify-end">
+            <AutoProjectButton template_document_URL={"https://firebasestorage.googleapis.com/v0/b/supapay-d5baf.appspot.com/o/Template%2Fproposal_template.pdf?alt=media&token=44ae1e42-daa8-4bdc-a710-d8791dcfe29c"} 
+            project_document_URL={"https://firebasestorage.googleapis.com/v0/b/supapay-d5baf.appspot.com/o/Proposals%2FFYP-MS%20Proposal.pdf?alt=media&token=4c383543-775b-4b60-b99a-023e39f9ad52"} 
+            deadlinePassed={deadlinePassed}
+            template_document_type={"pdf"}
+            project_document_type={"pdf"}
+          />
+            </div>
           <SubmitButton deadlinePassed={deadlinePassed} submitted={milestoneDetails.submitted} assignedMilestoneID={assignedMilestoneID} setReload={setReload} reload={reload} projectID={projectID}/>
         </div>
       )}
