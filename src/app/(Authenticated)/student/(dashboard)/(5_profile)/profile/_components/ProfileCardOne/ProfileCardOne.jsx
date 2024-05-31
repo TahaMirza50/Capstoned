@@ -1,50 +1,39 @@
 import Image from "next/image";
 import React from "react";
 import { RiProfileLine } from "react-icons/ri";
+import ProfileImageCard from "../ProfileImageCard/ProfileImageCard";
 
-function ProfileCardOne() {
+function ProfileCardOne({ studentID, firstName, lastName, gender, contact, email, profileImage, erp, program, resume }) {
   return (
     <div className="relative flex flex-col py-5 h-auto items-center justify-center bg-blue-50 m-5 rounded-xl">
       <div className="absolute top-4 left-4">
         <RiProfileLine className="h-6 w-6"/>
       </div>
       
-      <div className="relative h-36 w-36 rounded-full overflow-hidden mb-3">
-        <Image
-          alt={"Image Cannot be loaded"}
-          src="https://firebasestorage.googleapis.com/v0/b/capstoned-5463f.appspot.com/o/profile_picture%2F65df4b533c513b8b0d83b69d.jpg?alt=media&token=cab7f3cb-a892-4175-a69d-afb8c1e58ff6"
-          fill
-        />
-      </div>
-
-      <button
-        type="submit"
-        className="w-1/6 text-center text-xs font-montserrat font-semibold rounded-lg tracking-widest text-white bg-black border-2 border-black hover:bg-white hover:border-2 hover:black hover:text-black hover:font-semibold hover:font-montserrat hover:text-xs"
-      >
-        {"Edit"}
-      </button>
+      
+        <ProfileImageCard studentID={studentID} profileImage={profileImage}/>
 
       <div className="flex flex-col w-full justify-start items-center p-5 space-y-1">
-        <p className="font-montserrat font-semibold text-lg">Taha Mirza</p>
-        <p className="font-montserrat font-semibold text-base">BSCS</p>
+        <p className="font-montserrat font-semibold text-lg">{firstName} {lastName}</p>
+        <p className="font-montserrat font-semibold text-base">{program}</p>
         {/* //Add link for resume */}
         <a
-          href="https://firebasestorage.googleapis.com/v0/b/capstoned-5463f.appspot.com/o/resume%2F65df4b533c513b8b0d83b69d.pdf?alt=media&token=1d8b3e2d-6d6a-4e3d-9c5a-3b0b1f5b3b5b"
+          href={resume.file}
           className="font-montserrat font-semibold text-sm text-blue-500" target="_blank" rel="noreferrer" > 
           Resume 
         </a>
-        <p className="font-montserrat font-normal text-sm text-neutral-500">ERP: 23010</p>
+        <p className="font-montserrat font-normal text-sm text-neutral-500">ERP: {erp}</p>
         <p className="font-montserrat font-normal text-sm text-neutral-500">
-          t.mirza.22808@khi.iba.edu.pk
+          {email}
         </p>
         <p className="font-montserrat font-normal text-sm text-neutral-500">
-            Gender: Male
+            Gender: {gender}
         </p>
-        <p className="font-montserrat font-normal text-sm text-neutral-500">
+        {/* <p className="font-montserrat font-normal text-sm text-neutral-500">
             Role: Student
-        </p>
+        </p> */}
         <p className="font-montserrat font-normal text-sm text-neutral-500">
-            Contact: 03123456789
+            Contact: {contact}
         </p>
       </div>
     </div>
